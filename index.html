@@ -12,7 +12,6 @@
       --subtext: #4b5563;
       --input-border: #d1d5db;
       --primary: #2563eb;
-      --primary-hover: #1d4ed8;
       --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
       --quote-bg: #f8fafc;
       --quote-border: #e2e8f0;
@@ -25,7 +24,6 @@
       --subtext: #94a3b8;
       --input-border: #334155;
       --primary: #3b82f6;
-      --primary-hover: #2563eb;
       --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
       --quote-bg: #111827;
       --quote-border: #1e293b;
@@ -34,7 +32,7 @@
     * {
       box-sizing: border-box;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     body {
@@ -54,20 +52,19 @@
       border-radius: 20px;
       box-shadow: var(--shadow);
       width: 100%;
-      max-width: 420px;
-      position: relative;
+      max-width: 400px;
     }
 
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     h2 {
       margin: 0;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
     }
 
@@ -75,8 +72,8 @@
       background: transparent;
       border: 1px solid var(--input-border);
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -121,15 +118,11 @@
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .calc-btn:active {
-      background-color: var(--primary-hover);
+      margin-top: 8px;
     }
 
     .result {
-      margin-top: 20px;
+      margin-top: 18px;
       padding: 16px;
       border-radius: 14px;
       display: none;
@@ -148,20 +141,20 @@
 
     .circle-container {
       position: relative;
-      width: 120px;
-      height: 120px;
+      width: 110px;
+      height: 110px;
       margin: 10px auto;
     }
 
     svg {
       transform: rotate(-90deg);
-      width: 120px;
-      height: 120px;
+      width: 110px;
+      height: 110px;
     }
 
     circle {
       fill: none;
-      stroke-width: 10;
+      stroke-width: 9;
       stroke-linecap: round;
     }
 
@@ -170,9 +163,9 @@
     }
 
     .circle-progress {
-      stroke-dasharray: 314;
-      stroke-dashoffset: 314;
-      transition: stroke-dashoffset 0.8s ease-in-out, stroke 0.3s;
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      transition: stroke-dashoffset 0.8s ease-in-out;
     }
 
     .circle-text {
@@ -180,18 +173,17 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
     }
 
     .result p {
-      margin: 8px 0;
+      margin: 6px 0;
       font-size: 14px;
-      color: var(--text);
     }
 
     .share-container {
-      margin-top: 16px;
+      margin-top: 14px;
       display: flex;
       gap: 8px;
     }
@@ -216,13 +208,13 @@
     }
 
     .quote-box {
-      margin-top: 16px;
-      padding: 12px;
+      margin-top: 14px;
+      padding: 10px;
       border-radius: 8px;
       background: var(--quote-bg);
       border: 1px dashed var(--quote-border);
       font-style: italic;
-      font-size: 13px;
+      font-size: 12px;
       color: var(--subtext);
     }
   </style>
@@ -232,7 +224,7 @@
   <div class="card">
     <div class="header">
       <h2>Attendance Tracker</h2>
-      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+      <button type="button" class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
     </div>
     
     <div class="input-group">
@@ -250,13 +242,13 @@
       <input type="number" id="holidays" placeholder="e.g. 10" min="0">
     </div>
 
-    <button class="calc-btn" onclick="calculate()">Calculate</button>
+    <button type="button" class="calc-btn" onclick="calculate()">Calculate</button>
 
     <div id="output" class="result">
       <div class="circle-container">
         <svg>
-          <circle class="circle-bg" cx="60" cy="60" r="50"></circle>
-          <circle class="circle-progress" id="progressCircle" cx="60" cy="60" r="50"></circle>
+          <circle class="circle-bg" cx="55" cy="55" r="45"></circle>
+          <circle class="circle-progress" id="progressCircle" cx="55" cy="55" r="45"></circle>
         </svg>
         <div class="circle-text" id="circleValue">0%</div>
       </div>
@@ -264,8 +256,8 @@
       <div id="statusDetails"></div>
 
       <div class="share-container">
-        <button class="share-btn whatsapp-btn" onclick="shareWhatsApp()">Share WhatsApp</button>
-        <button class="share-btn copy-btn" onclick="copyCard()">Copy Card</button>
+        <button type="button" class="share-btn whatsapp-btn" onclick="shareWhatsApp()">Share WhatsApp</button>
+        <button type="button" class="share-btn copy-btn" onclick="copyCard()">Copy Text</button>
       </div>
 
       <div class="quote-box" id="quoteText"></div>
@@ -273,9 +265,8 @@
   </div>
 
   <script>
-    let shareMessage = "";
-
-    const quotes = [
+    var shareMessage = "";
+    var quotes = [
       "“80% of success is showing up.” – Woody Allen",
       "“Discipline is choosing between what you want now and what you want most.”",
       "“Wake up with determination. Go to bed with satisfaction.”",
@@ -287,89 +278,81 @@
 
     function toggleTheme() {
       document.body.classList.toggle('dark');
-      const isDark = document.body.classList.contains('dark');
+      var isDark = document.body.classList.contains('dark');
       document.getElementById('themeBtn').innerText = isDark ? '☀️' : '🌙';
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
 
     if (localStorage.getItem('theme') === 'dark') {
       document.body.classList.add('dark');
-      document.getElementById('themeBtn').innerText = '☀️';
+      var btn = document.getElementById('themeBtn');
+      if (btn) btn.innerText = '☀️';
     }
 
     function calculate() {
-      const present = parseInt(document.getElementById('present').value) || 0;
-      const absent = parseInt(document.getElementById('absent').value) || 0;
-      const total = present + absent;
+      var present = parseInt(document.getElementById('present').value) || 0;
+      var absent = parseInt(document.getElementById('absent').value) || 0;
+      var total = present + absent;
 
       if (total === 0) {
-        alert("Please enter your classes!");
+        alert("Please enter days present or absent!");
         return;
       }
 
-      const percent = (present / total) * 100;
-      const output = document.getElementById('output');
-      const circle = document.getElementById('progressCircle');
-      const circleVal = document.getElementById('circleValue');
-      const statusDetails = document.getElementById('statusDetails');
-      const quoteElement = document.getElementById('quoteText');
+      var percent = (present / total) * 100;
+      var formatted = percent.toFixed(1);
+      var output = document.getElementById('output');
+      var circle = document.getElementById('progressCircle');
+      var circleVal = document.getElementById('circleValue');
+      var statusDetails = document.getElementById('statusDetails');
+      var quoteElement = document.getElementById('quoteText');
 
       output.style.display = "block";
-      circleVal.innerText = `${percent.toFixed(1)}%`;
+      circleVal.innerText = formatted + "%";
 
-      const circumference = 314;
-      const offset = circumference - (Math.min(percent, 100) / 100) * circumference;
+      var circumference = 283;
+      var capped = percent > 100 ? 100 : percent;
+      var offset = circumference - (capped / 100) * circumference;
       circle.style.strokeDashoffset = offset;
-
-      let adviceText = "";
 
       if (percent >= 75) {
         circle.style.stroke = "#10b981";
         output.className = "result good";
-        const missable = Math.floor((present / 0.75) - total);
+        var missable = Math.floor((present / 0.75) - total);
 
-        if (missable > 0) {
-          adviceText = `🎉 You can safely miss <b>${missable}</b> more class(es)!`;
-          shareMessage = `My attendance is currently at ${percent.toFixed(1)}\%! I can safely miss${missable} lecture(s) and still stay above 75%! 🚀`;
-        } else {
-          adviceText = `⚠️ On the edge! You cannot miss the next class.`;
-          shareMessage = `My attendance is at ${percent.toFixed(1)}%. Right on the boundary—no bunking for me! 😅`;
-        }
+        var note = missable > 0 
+          ? "🎉 You can safely miss <b>" + missable + "</b> upcoming class(es)!" 
+          : "⚠️ On the edge! You cannot miss the next class.";
 
-        statusDetails.innerHTML = `
-          <h3 style="color:#10b981; margin: 4px 0;">Safe Zone!</h3>
-          <p>Total Working Days: <b>${total}</b></p>
-          <p>${adviceText}</p>
-        `;
+        shareMessage = "My attendance is currently at " + formatted + "%! Can miss " + missable + " lectures safely. 🚀";
+
+        statusDetails.innerHTML = '<h3 style="color:#10b981; margin:4px 0;">Safe Zone!</h3>' +
+          '<p>Total Working Days: <b>' + total + '</b></p>' +
+          '<p>' + note + '</p>';
       } else {
         circle.style.stroke = "#ef4444";
         output.className = "result warn";
-        const needed = Math.ceil(3 * total - 4 * present);
+        var needed = Math.ceil(3 * total - 4 * present);
 
-        adviceText = `📌 You must attend the next <b>${needed}</b> classes continuously to reach 75%.`;
-        shareMessage = `My attendance is currently ${percent.toFixed(1)}\%. I need to attend${needed
-adviceText = `📌 You must attend the next <b>${needed}</b> classes continuously to reach 75%.`;
-        shareMessage = `My attendance is currently ${percent.toFixed(1)}%. I need to attend ${needed} class(es) back-to-back to get back to 75%! 📚`;
+        shareMessage = "My attendance is currently at " + formatted + "%. I need to attend " + needed + " class(es) in a row! 📚";
 
-        statusDetails.innerHTML = `
-          <h3 style="color:#ef4444; margin: 4px 0;">Shortage Warning!</h3>
-          <p>Total Working Days: <b>${total}</b></p>
-          <p>${adviceText}</p>
-        `;
+        statusDetails.innerHTML = '<h3 style="color:#ef4444; margin:4px 0;">Shortage Warning!</h3>' +
+          '<p>Total Working Days: <b>' + total + '</b></p>' +
+          '<p>📌 You must attend the next <b>' + needed + '</b> classes continuously to reach 75%.</p>';
       }
 
-      const randomIndex = Math.floor(Math.random() * quotes.length);
+      var randomIndex = Math.floor(Math.random() * quotes.length);
       quoteElement.innerText = quotes[randomIndex];
     }
 
     function shareWhatsApp() {
-      const url = encodeURIComponent(window.location.href);
-      const text = encodeURIComponent(shareMessage + "\nCalculate yours here: ");
-      window.open(`https://api.whatsapp.com/send?text=${text}${url}`, '_blank');
+      var url = encodeURIComponent(window.location.href);
+      var text = encodeURIComponent(shareMessage + "\nCalculate yours here: ");
+      window.open("https://api.whatsapp.com/send?text=" + text + url, "_blank");
     }
 
     function copyCard() {
-      navigator.clipboard.writeText(shareMessage).then(() => {
+      navigator.clipboard.writeText(shareMessage).then(function() {
         alert("Copied summary to clipboard!");
       });
     }
