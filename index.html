@@ -128,41 +128,6 @@
       border-color: var(--primary);
     }
 
-    /* Target Selector Buttons */
-    .target-group {
-      margin-bottom: 16px;
-    }
-
-    .target-pills {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-
-    .target-pill {
-      flex: 1;
-      padding: 8px 0;
-      border: 1px solid var(--input-border);
-      background: var(--target-btn-bg);
-      color: var(--text);
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-    }
-
-    .target-pill.active {
-      background: var(--target-btn-active);
-      color: white;
-      border-color: var(--target-btn-active);
-    }
-
-    .custom-target-input {
-      display: none;
-      margin-top: 6px;
-    }
-
     .calc-btn {
       width: 100%;
       padding: 14px;
@@ -184,7 +149,6 @@
       margin-top: 18px;
       padding: 16px;
       border-radius: 14px;
-      display: none;
       text-align: center;
     }
 
@@ -241,17 +205,6 @@
       font-size: 14px;
     }
 
-    /* Target Result Box */
-    .custom-target-box {
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 8px;
-      background: rgba(37, 99, 235, 0.1);
-      border: 1px dashed var(--primary);
-      font-size: 13px;
-      text-align: left;
-    }
-
     .share-container {
       margin-top: 14px;
       display: flex;
@@ -287,6 +240,69 @@
       font-size: 12px;
       color: var(--subtext);
     }
+
+    /* Target Prompt Section */
+    .target-prompt-card {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--quote-bg);
+      border: 1px solid var(--quote-border);
+      text-align: center;
+    }
+
+    .target-prompt-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--subtext);
+      margin-bottom: 10px;
+    }
+
+    .target-pills {
+      display: flex;
+      gap: 6px;
+    }
+
+    .target-pill {
+      flex: 1;
+      padding: 8px 0;
+      border: 1px solid var(--input-border);
+      background: var(--target-btn-bg);
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .target-pill.active {
+      background: var(--target-btn-active);
+      color: white;
+      border-color: var(--target-btn-active);
+    }
+
+    .custom-target-row {
+      display: none;
+      margin-top: 10px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .custom-target-row input {
+      flex: 1;
+      padding: 8px 12px;
+    }
+
+    .custom-target-row button {
+      padding: 8px 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -298,37 +314,25 @@
     </div>
 
     <div class="tip-box">
-      💡 <b>Tip:</b> If you joined late, simply enter the working days held <i>since your admission</i>.
+      💡 <b>Tip:</b> If you joined late, enter the working days held <i>since your admission</i>. Prior days are automatically excluded.
     </div>
 
+    <!-- Enter Key moves from totalDays -> presentDays -->
     <div class="input-group">
       <label>Total Working Days Held (Classes)</label>
-      <input type="number" id="totalDays" placeholder="e.g. 100" min="1">
+      <input type="number" id="totalDays" placeholder="e.g. 100" min="1" onkeydown="handleEnterTotal(event)">
     </div>
 
+    <!-- Enter Key runs calculate() -->
     <div class="input-group">
       <label>Days / Classes Present</label>
-      <input type="number" id="presentDays" placeholder="e.g. 73" min="0">
-    </div>
-
-    <!-- Target Selector -->
-    <div class="target-group">
-      <label>Target Percentage Criteria</label>
-      <div class="target-pills">
-        <button type="button" class="target-pill" onclick="setTarget(65, this)">65%</button>
-        <button type="button" class="target-pill active" onclick="setTarget(75, this)">75% (Std)</button>
-        <button type="button" class="target-pill" onclick="setTarget(80, this)">80%</button>
-        <button type="button" class="target-pill" onclick="setTarget(85, this)">85%</button>
-        <button type="button" class="target-pill" onclick="showCustomTarget(this)">Custom</button>
-      </div>
-      <div id="customTargetDiv" class="custom-target-input">
-        <input type="number" id="customTargetVal" placeholder="Enter target % (e.g. 70)" min="1" max="100">
-      </div>
+      <input type="number" id="presentDays" placeholder="e.g. 73" min="0" onkeydown="handleEnterPresent(event)">
     </div>
 
     <button type="button" class="calc-btn" onclick="calculate()">Calculate Attendance</button>
 
-    <div id="output" class="result">
+    <!-- 1. PRIMARY RESULT BOX (75% STANDARD) -->
+    <div id="output" class="result" style="display: none;">
       <div class="circle-container">
         <svg>
           <circle class="circle-bg" cx="55" cy="55" r="45"></circle>
@@ -337,11 +341,7 @@
         <div class="circle-text" id="circleValue">0%</div>
       </div>
 
-      <!-- Primary Standard (75%) Output Section -->
       <div id="statusDetails"></div>
-
-      <!-- Custom Target Comparison Section (Displays when target != 75%) -->
-      <div id="customTargetOutput" style="display: none;" class="custom-target-box"></div>
 
       <div class="share-container">
         <button type="button" class="share-btn whatsapp-btn" onclick="shareWhatsApp()">Share WhatsApp</button>
@@ -350,11 +350,43 @@
 
       <div class="quote-box" id="quoteText"></div>
     </div>
+
+    <!-- 2. ASK TO SET CUSTOM TARGET (Appears only after 75% calculation) -->
+    <div id="customPromptSection" class="target-prompt-card" style="display: none;">
+      <div class="target-prompt-title">🎯 Want to check against a custom target?</div>
+      <div class="target-pills">
+        <button type="button" class="target-pill" onclick="applyCustomTarget(65, this)">65%</button>
+        <button type="button" class="target-pill" onclick="applyCustomTarget(80, this)">80%</button>
+        <button type="button" class="target-pill" onclick="applyCustomTarget(85, this)">85%</button>
+        <button type="button" class="target-pill" onclick="showCustomInput(this)">Custom</button>
+      </div>
+
+      <div id="customInputRow" class="custom-target-row" style="display: none;">
+        <input type="number" id="manualTargetInput" placeholder="Enter target % (e.g. 90)" min="1" max="100">
+        <button type="button" onclick="submitManualTarget()">Apply</button>
+      </div>
+    </div>
+
+    <!-- 3. DOWN BOX: CUSTOM TARGET RESULT (Identical styling to primary box) -->
+    <div id="customOutputCard" class="result" style="display: none;">
+      <div class="circle-container">
+        <svg>
+          <circle class="circle-bg" cx="55" cy="55" r="45"></circle>
+          <circle class="circle-progress" id="customProgressCircle" cx="55" cy="55" r="45"></circle>
+        </svg>
+        <div class="circle-text" id="customCircleValue">0%</div>
+      </div>
+
+      <div id="customStatusDetails"></div>
+    </div>
   </div>
 
   <script>
-    var selectedTarget = 75;
     var shareMessage = "";
+    var currentTotal = 0;
+    var currentPresent = 0;
+    var currentPercent = 0;
+
     var quotes = [
       "“80% of success is showing up.” – Woody Allen",
       "“Discipline is choosing between what you want now and what you want most.”",
@@ -364,6 +396,20 @@
       "“Push yourself, because no one else is going to do it for you.”",
       "“Your future self will thank you for waking up today.”"
     ];
+
+    function handleEnterTotal(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('presentDays').focus();
+      }
+    }
+
+    function handleEnterPresent(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        calculate();
+      }
+    }
 
     function toggleTheme() {
       document.body.classList.toggle('dark');
@@ -378,124 +424,144 @@
       if (btn) btn.innerText = '☀️';
     }
 
-    function clearPillActives() {
-      var pills = document.querySelectorAll('.target-pill');
-      pills.forEach(function(pill) {
-        pill.classList.remove('active');
-      });
-    }
-
-    function setTarget(val, elem) {
-      selectedTarget = val;
-      clearPillActives();
-      elem.classList.add('active');
-      document.getElementById('customTargetDiv').style.display = 'none';
-    }
-
-    function showCustomTarget(elem) {
-      clearPillActives();
-      elem.classList.add('active');
-      var div = document.getElementById('customTargetDiv');
-      div.style.display = 'block';
-      document.getElementById('customTargetVal').focus();
-    }
-
     function calculate() {
-      var total = parseInt(document.getElementById('totalDays').value) || 0;
-      var present = parseInt(document.getElementById('presentDays').value) || 0;
+      currentTotal = parseInt(document.getElementById('totalDays').value) || 0;
+      currentPresent = parseInt(document.getElementById('presentDays').value) || 0;
 
-      if (total <= 0) {
+      if (currentTotal <= 0) {
         alert("Please enter a valid number for Total Working Days!");
         return;
       }
 
-      if (present > total) {
+      if (currentPresent > currentTotal) {
         alert("Days present cannot be greater than total working days held!");
         return;
       }
 
-      // Check if custom target input is active
-      var customDiv = document.getElementById('customTargetDiv');
-      var target = selectedTarget;
-      if (customDiv.style.display === 'block') {
-        var customVal = parseFloat(document.getElementById('customTargetVal').value);
-        if (!customVal || customVal <= 0 || customVal > 100) {
-          alert("Please enter a valid target percentage between 1 and 100!");
-          return;
-        }
-        target = customVal;
-      }
-
-      var absent = total - present;
-      var percent = (present / total) * 100;
-      var formatted = percent.toFixed(1);
+      var absent = currentTotal - currentPresent;
+      currentPercent = (currentPresent / currentTotal) * 100;
+      var formatted = currentPercent.toFixed(1);
 
       var output = document.getElementById('output');
       var circle = document.getElementById('progressCircle');
       var circleVal = document.getElementById('circleValue');
       var statusDetails = document.getElementById('statusDetails');
-      var customOutput = document.getElementById('customTargetOutput');
       var quoteElement = document.getElementById('quoteText');
 
       output.style.display = "block";
       circleVal.innerText = formatted + "%";
 
-      // Circular animation
       var circumference = 283;
-      var capped = percent > 100 ? 100 : percent;
+      var capped = currentPercent > 100 ? 100 : currentPercent;
       var offset = circumference - (capped / 100) * circumference;
       circle.style.strokeDashoffset = offset;
 
-      // 1. PRIMARY EVALUATION (CBSE 75% STANDARD)
-      if (percent >= 75) {
+      // Primary CBSE 75% Evaluation
+      if (currentPercent >= 75) {
         circle.style.stroke = "#10b981";
         output.className = "result good";
-        var missable75 = Math.floor((present / 0.75) - total);
+        var missable = Math.floor((currentPresent / 0.75) - currentTotal);
 
-        var note75 = missable75 > 0 
-          ? "🎉 You can safely miss <b>" + missable75 + "</b> class(es) to stay above 75%." 
+        var note = missable > 0 
+          ? "🎉 You can safely miss <b>" + missable + "</b> class(es) to stay above 75%." 
           : "⚠️ Right on the line! Missing the next class drops you below 75%.";
 
-        shareMessage = "My attendance is currently at " + formatted + "% (" + present + "/" + total + ")! Can miss " + missable75 + " lectures safely for 75%. 🚀";
+        shareMessage = "My attendance is currently at " + formatted + "% (" + currentPresent + "/" + currentTotal + ")! Can miss " + missable + " lectures safely. 🚀";
 
         statusDetails.innerHTML = '<h3 style="color:#10b981; margin:4px 0;">Official 75% Criteria: Safe Zone!</h3>' +
-          '<p>Days Present: <b>' + present + '</b> | Days Absent: <b>' + absent + '</b></p>' +
-          '<p>' + note75 + '</p>';
+          '<p>Days Present: <b>' + currentPresent + '</b> | Days Absent: <b>' + absent + '</b></p>' +
+          '<p>' + note + '</p>';
       } else {
         circle.style.stroke = "#ef4444";
         output.className = "result warn";
-        var needed75 = Math.ceil(3 * total - 4 * present);
+        var needed = Math.ceil(3 * currentTotal - 4 * currentPresent);
 
-        shareMessage = "My attendance is currently at " + formatted + "% (" + present + "/" + total + "). Need to attend " + needed75 + " class(es) in a row to reach 75%! 📚";
+        shareMessage = "My attendance is currently at " + formatted + "% (" + currentPresent + "/" + currentTotal + "). Need to attend " + needed + " class(es) in a row to reach 75%! 📚";
 
         statusDetails.innerHTML = '<h3 style="color:#ef4444; margin:4px 0;">Official 75% Criteria: Shortage!</h3>' +
-          '<p>Days Present: <b>' + present + '</b> | Days Absent: <b>' + absent + '</b></p>' +
-          '<p>📌 You must attend the next <b>' + needed75 + '</b> class(es) continuously to reach 75%.</p>';
-      }
-
-      // 2. CUSTOM TARGET CALCULATION (If target selected is not 75%)
-      if (target !== 75) {
-        customOutput.style.display = "block";
-        var targetFraction = target / 100;
-
-        if (percent >= target) {
-          var customBunks = Math.floor((present / targetFraction) - total);
-          customOutput.innerHTML = '🎯 <b>Custom Target (' + target + '%): Met!</b><br>' +
-            (customBunks > 0 
-              ? 'You can safely miss <b>' + customBunks + '</b> class(es) while staying above ' + target + '%.' 
-              : 'You are right at your target boundary.');
-        } else {
-          // (Present + x) / (Total + x) >= T => x >= (T*Total - Present) / (1 - T)
-          var neededCustom = Math.ceil(((targetFraction * total) - present) / (1 - targetFraction));
-          customOutput.innerHTML = '🎯 <b>Custom Target (' + target + '%): Shortage!</b><br>' +
-            'Attend the next <b>' + neededCustom + '</b> class(es) continuously to reach ' + target + '%.';
-        }
-      } else {
-        customOutput.style.display = "none";
+          '<p>Days Present: <b>' + currentPresent + '</b> | Days Absent: <b>' + absent + '</b></p>' +
+          '<p>📌 You must attend the next <b>' + needed + '</b> class(es) continuously to reach 75%.</p>';
       }
 
       var randomIndex = Math.floor(Math.random() * quotes.length);
       quoteElement.innerText = quotes[randomIndex];
+
+      // Reveal the Custom Target prompt underneath
+      document.getElementById('customPromptSection').style.display = 'block';
+      // Reset any previous custom card
+      document.getElementById('customOutputCard').style.display = 'none';
+      clearPillActives();
+    }
+
+    function clearPillActives() {
+      var pills = document.querySelectorAll('.target-pill');
+      pills.forEach(function(pill) {
+        pill.classList.remove('active');
+      });
+      document.getElementById('customInputRow').style.display = 'none';
+    }
+
+    function applyCustomTarget(target, elem) {
+      clearPillActives();
+      if (elem) elem.classList.add('active');
+      renderCustomBox(target);
+    }
+
+    function showCustomInput(elem) {
+      clearPillActives();
+      elem.classList.add('active');
+      var row = document.getElementById('customInputRow');
+      row.style.display = 'flex';
+      document.getElementById('manualTargetInput').focus();
+    }
+
+    function submitManualTarget() {
+      var val = parseFloat(document.getElementById('manualTargetInput').value);
+      if (!val || val <= 0 || val > 100) {
+        alert("Please enter a valid percentage between 1 and 100!");
+        return;
+      }
+      renderCustomBox(val);
+    }
+
+    function renderCustomBox(target) {
+      var card = document.getElementById('customOutputCard');
+      var circle = document.getElementById('customProgressCircle');
+      var circleVal = document.getElementById('customCircleValue');
+      var details = document.getElementById('customStatusDetails');
+
+      card.style.display = "block";
+      circleVal.innerText = currentPercent.toFixed(1) + "%";
+
+      var circumference = 283;
+      var capped = currentPercent > 100 ? 100 : currentPercent;
+      var offset = circumference - (capped / 100) * circumference;
+      circle.style.strokeDashoffset = offset;
+
+      var targetFraction = target / 100;
+
+      if (currentPercent >= target) {
+        circle.style.stroke = "#10b981";
+        card.className = "result good";
+        var missable = Math.floor((currentPresent / targetFraction) - currentTotal);
+
+        var note = missable > 0 
+          ? "🎉 You can safely miss <b>" + missable + "</b> class(es) while staying above " + target + "%." 
+          : "⚠️ Right at your target line!";
+
+        details.innerHTML = '<h3 style="color:#10b981; margin:4px 0;">Target ' + target + '%: Safe Zone!</h3>' +
+          '<p>' + note + '</p>';
+      } else {
+        circle.style.stroke = "#ef4444";
+        card.className = "result warn";
+        var needed = Math.ceil(((targetFraction * currentTotal) - currentPresent) / (1 - targetFraction));
+
+        details.innerHTML = '<h3 style="color:#ef4444; margin:4px 0;">Target ' + target + '%: Shortage!</h3>' +
+          '<p>📌 You must attend the next <b>' + needed + '</b> class(es) continuously to reach ' + target + '%.</p>';
+      }
+
+      // Smooth scroll down to the new box
+      card.scrollIntoView({ behavior: 'smooth' });
     }
 
     function shareWhatsApp() {
