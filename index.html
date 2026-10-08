@@ -285,7 +285,6 @@
     .custom-target-row {
       display: none;
       margin-top: 10px;
-      display: flex;
       gap: 6px;
     }
 
@@ -317,13 +316,11 @@
       💡 <b>Tip:</b> If you joined late, enter the working days held <i>since your admission</i>. Prior days are automatically excluded.
     </div>
 
-    <!-- Enter Key moves from totalDays -> presentDays -->
     <div class="input-group">
       <label>Total Working Days Held (Classes)</label>
       <input type="number" id="totalDays" placeholder="e.g. 100" min="1" onkeydown="handleEnterTotal(event)">
     </div>
 
-    <!-- Enter Key runs calculate() -->
     <div class="input-group">
       <label>Days / Classes Present</label>
       <input type="number" id="presentDays" placeholder="e.g. 73" min="0" onkeydown="handleEnterPresent(event)">
@@ -344,14 +341,14 @@
       <div id="statusDetails"></div>
 
       <div class="share-container">
-        <button type="button" class="share-btn whatsapp-btn" onclick="shareWhatsApp()">Share WhatsApp</button>
-        <button type="button" class="share-btn copy-btn" onclick="copyCard()">Copy Text</button>
+        <button type="button" class="share-btn whatsapp-btn" onclick="shareWhatsApp('75')">Share WhatsApp</button>
+        <button type="button" class="share-btn copy-btn" onclick="copyCard('75')">Copy Text</button>
       </div>
 
       <div class="quote-box" id="quoteText"></div>
     </div>
 
-    <!-- 2. ASK TO SET CUSTOM TARGET (Appears only after 75% calculation) -->
+    <!-- 2. ASK TO SET CUSTOM TARGET -->
     <div id="customPromptSection" class="target-prompt-card" style="display: none;">
       <div class="target-prompt-title">🎯 Want to check against a custom target?</div>
       <div class="target-pills">
@@ -367,7 +364,7 @@
       </div>
     </div>
 
-    <!-- 3. DOWN BOX: CUSTOM TARGET RESULT (Identical styling to primary box) -->
+    <!-- 3. DOWN BOX: CUSTOM TARGET RESULT -->
     <div id="customOutputCard" class="result" style="display: none;">
       <div class="circle-container">
         <svg>
@@ -378,11 +375,19 @@
       </div>
 
       <div id="customStatusDetails"></div>
+
+      <div class="share-container">
+        <button type="button" class="share-btn whatsapp-btn" onclick="shareWhatsApp('custom')">Share WhatsApp</button>
+        <button type="button" class="share-btn copy-btn" onclick="copyCard('custom')">Copy Text</button>
+      </div>
+
+      <div class="quote-box" id="customQuoteText"></div>
     </div>
   </div>
 
   <script>
-    var shareMessage = "";
+    var shareMessage75 = "";
+    var shareMessageCustom = "";
     var currentTotal = 0;
     var currentPresent = 0;
     var currentPercent = 0;
@@ -391,11 +396,33 @@
       "“80% of success is showing up.” – Woody Allen",
       "“Discipline is choosing between what you want now and what you want most.”",
       "“Wake up with determination. Go to bed with satisfaction.”",
-      "“College degrees are won one morning lecture at a time.”",
-      "“Bunk responsibly. Don't let your attendance give you anxiety later!”",
-      "“Push yourself, because no one else is going to do it for you.”",
-      "“Your future self will thank you for waking up today.”"
+      "“College degrees and board results are won one morning lecture at a time.”",
+      "“Bunk responsibly. Don't let your attendance give you anxiety during exams!”",
+      "“Push yourself, because no one else is going to sit in that morning class for you.”",
+      "“Your future self will thank you for waking up today.”",
+      "“Small disciplines repeated with consistency every day lead to great achievements.”",
+      "“Don't count the days, make the days count.” – Muhammad Ali",
+      "“Consistency is the mother of mastery.”",
+      "“An hour of attendance today saves weeks of panic before the admit card is issued!”",
+      "“The secret of getting ahead is getting started.” – Mark Twain",
+      "“Show up even when you don't feel like it. That is what separates the best.”",
+      "“Success isn't always about greatness. It's about consistency. Consistent hard work leads to success.” – Dwayne Johnson",
+      "“Attendance is the first test you have to pass before writing the actual exam.”",
+      "“A 75% target is just a boundary; make consistency your standard.”",
+      "“You don't have to be extreme, just consistent.”",
+      "“Wake up early, attend your classes, stay ahead of the game.”",
+      "“Action is the foundational key to all success.” – Pablo Picasso",
+      "“Every attended class is one less chapter to scramble through at midnight.”",
+      "“Focus on the step in front of you, not the whole staircase.”",
+      "“The pain of discipline is far less than the pain of regret.”",
+      "“Stay accountable today so tomorrow is stress-free.”",
+      "“Showing up on tough mornings builds character that textbooks can't teach.”",
+      "“Consistency breeds confidence.”"
     ];
+
+    function getRandomQuote() {
+      return quotes[Math.floor(Math.random() * quotes.length)];
+    }
 
     function handleEnterTotal(e) {
       if (e.key === 'Enter') {
@@ -466,7 +493,7 @@
           ? "🎉 You can safely miss <b>" + missable + "</b> class(es) to stay above 75%." 
           : "⚠️ Right on the line! Missing the next class drops you below 75%.";
 
-        shareMessage = "My attendance is currently at " + formatted + "% (" + currentPresent + "/" + currentTotal + ")! Can miss " + missable + " lectures safely. 🚀";
+        shareMessage75 = "My attendance is currently at " + formatted + "% (" + currentPresent + "/" + currentTotal + ")! Can miss " + missable + " lecture(s) safely. 🚀";
 
         statusDetails.innerHTML = '<h3 style="color:#10b981; margin:4px 0;">Official 75% Criteria: Safe Zone!</h3>' +
           '<p>Days Present: <b>' + currentPresent + '</b> | Days Absent: <b>' + absent + '</b></p>' +
@@ -476,19 +503,17 @@
         output.className = "result warn";
         var needed = Math.ceil(3 * currentTotal - 4 * currentPresent);
 
-        shareMessage = "My attendance is currently at " + formatted + "% (" + currentPresent + "/" + currentTotal + "). Need to attend " + needed + " class(es) in a row to reach 75%! 📚";
+        shareMessage75 = "My attendance is currently at " + formatted + "% (" + currentPresent + "/" + currentTotal + "). Need to attend " + needed + " class(es) in a row to reach 75%! 📚";
 
         statusDetails.innerHTML = '<h3 style="color:#ef4444; margin:4px 0;">Official 75% Criteria: Shortage!</h3>' +
           '<p>Days Present: <b>' + currentPresent + '</b> | Days Absent: <b>' + absent + '</b></p>' +
           '<p>📌 You must attend the next <b>' + needed + '</b> class(es) continuously to reach 75%.</p>';
       }
 
-      var randomIndex = Math.floor(Math.random() * quotes.length);
-      quoteElement.innerText = quotes[randomIndex];
+      quoteElement.innerText = getRandomQuote();
 
-      // Reveal the Custom Target prompt underneath
+      // Show Custom Target prompt
       document.getElementById('customPromptSection').style.display = 'block';
-      // Reset any previous custom card
       document.getElementById('customOutputCard').style.display = 'none';
       clearPillActives();
     }
@@ -529,9 +554,11 @@
       var circle = document.getElementById('customProgressCircle');
       var circleVal = document.getElementById('customCircleValue');
       var details = document.getElementById('customStatusDetails');
+      var quoteBox = document.getElementById('customQuoteText');
 
       card.style.display = "block";
-      circleVal.innerText = currentPercent.toFixed(1) + "%";
+      var formatted = currentPercent.toFixed(1);
+      circleVal.innerText = formatted + "%";
 
       var circumference = 283;
       var capped = currentPercent > 100 ? 100 : currentPercent;
@@ -549,6 +576,8 @@
           ? "🎉 You can safely miss <b>" + missable + "</b> class(es) while staying above " + target + "%." 
           : "⚠️ Right at your target line!";
 
+        shareMessageCustom = "Target " + target + "% achieved! My attendance is " + formatted + "%. Can miss " + missable + " class(es) safely. 🎯";
+
         details.innerHTML = '<h3 style="color:#10b981; margin:4px 0;">Target ' + target + '%: Safe Zone!</h3>' +
           '<p>' + note + '</p>';
       } else {
@@ -556,23 +585,27 @@
         card.className = "result warn";
         var needed = Math.ceil(((targetFraction * currentTotal) - currentPresent) / (1 - targetFraction));
 
+        shareMessageCustom = "Working towards " + target + "% attendance! Currently at " + formatted + "%. Need to attend " + needed + " class(es) straight! 📚";
+
         details.innerHTML = '<h3 style="color:#ef4444; margin:4px 0;">Target ' + target + '%: Shortage!</h3>' +
           '<p>📌 You must attend the next <b>' + needed + '</b> class(es) continuously to reach ' + target + '%.</p>';
       }
 
-      // Smooth scroll down to the new box
+      quoteBox.innerText = getRandomQuote();
       card.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function shareWhatsApp() {
+    function shareWhatsApp(type) {
+      var msg = type === '75' ? shareMessage75 : shareMessageCustom;
       var url = encodeURIComponent(window.location.href);
-      var text = encodeURIComponent(shareMessage + "\nCalculate yours here: ");
+      var text = encodeURIComponent(msg + "\nTrack your attendance here: ");
       window.open("https://api.whatsapp.com/send?text=" + text + url, "_blank");
     }
 
-    function copyCard() {
-      navigator.clipboard.writeText(shareMessage).then(function() {
-        alert("Copied summary to clipboard!");
+    function copyCard(type) {
+      var msg = type === '75' ? shareMessage75 : shareMessageCustom;
+      navigator.clipboard.writeText(msg).then(function() {
+        alert("Summary copied to clipboard!");
       });
     }
   </script>
