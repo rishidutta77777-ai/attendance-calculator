@@ -12,11 +12,14 @@
       --subtext: #4b5563;
       --input-border: #d1d5db;
       --primary: #2563eb;
+      --primary-hover: #1d4ed8;
       --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
       --quote-bg: #f8fafc;
       --quote-border: #e2e8f0;
       --badge-bg: #eff6ff;
       --badge-text: #1d4ed8;
+      --target-btn-bg: #f1f5f9;
+      --target-btn-active: #2563eb;
     }
 
     body.dark {
@@ -26,11 +29,14 @@
       --subtext: #94a3b8;
       --input-border: #334155;
       --primary: #3b82f6;
+      --primary-hover: #2563eb;
       --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
       --quote-bg: #111827;
       --quote-border: #1e293b;
       --badge-bg: #1e3a8a;
       --badge-text: #93c5fd;
+      --target-btn-bg: #0f172a;
+      --target-btn-active: #3b82f6;
     }
 
     * {
@@ -92,7 +98,7 @@
       border-radius: 10px;
       font-size: 12px;
       line-height: 1.4;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     .input-group {
@@ -122,6 +128,41 @@
       border-color: var(--primary);
     }
 
+    /* Target Selector Buttons */
+    .target-group {
+      margin-bottom: 16px;
+    }
+
+    .target-pills {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .target-pill {
+      flex: 1;
+      padding: 8px 0;
+      border: 1px solid var(--input-border);
+      background: var(--target-btn-bg);
+      color: var(--text);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .target-pill.active {
+      background: var(--target-btn-active);
+      color: white;
+      border-color: var(--target-btn-active);
+    }
+
+    .custom-target-input {
+      display: none;
+      margin-top: 6px;
+    }
+
     .calc-btn {
       width: 100%;
       padding: 14px;
@@ -132,7 +173,11 @@
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
-      margin-top: 8px;
+      margin-top: 4px;
+    }
+
+    .calc-btn:active {
+      background-color: var(--primary-hover);
     }
 
     .result {
@@ -157,7 +202,7 @@
       position: relative;
       width: 110px;
       height: 110px;
-      margin: 10px auto;
+      margin: 8px auto;
     }
 
     svg {
@@ -194,6 +239,17 @@
     .result p {
       margin: 6px 0;
       font-size: 14px;
+    }
+
+    /* Target Result Box */
+    .custom-target-box {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(37, 99, 235, 0.1);
+      border: 1px dashed var(--primary);
+      font-size: 13px;
+      text-align: left;
     }
 
     .share-container {
@@ -242,7 +298,7 @@
     </div>
 
     <div class="tip-box">
-      💡 <b>Tip:</b> If you joined late, simply enter the working days held <i>since your admission</i>. Prior days are automatically excluded.
+      💡 <b>Tip:</b> If you joined late, simply enter the working days held <i>since your admission</i>.
     </div>
 
     <div class="input-group">
@@ -253,6 +309,21 @@
     <div class="input-group">
       <label>Days / Classes Present</label>
       <input type="number" id="presentDays" placeholder="e.g. 73" min="0">
+    </div>
+
+    <!-- Target Selector -->
+    <div class="target-group">
+      <label>Target Percentage Criteria</label>
+      <div class="target-pills">
+        <button type="button" class="target-pill" onclick="setTarget(65, this)">65%</button>
+        <button type="button" class="target-pill active" onclick="setTarget(75, this)">75% (Std)</button>
+        <button type="button" class="target-pill" onclick="setTarget(80, this)">80%</button>
+        <button type="button" class="target-pill" onclick="setTarget(85, this)">85%</button>
+        <button type="button" class="target-pill" onclick="showCustomTarget(this)">Custom</button>
+      </div>
+      <div id="customTargetDiv" class="custom-target-input">
+        <input type="number" id="customTargetVal" placeholder="Enter target % (e.g. 70)" min="1" max="100">
+      </div>
     </div>
 
     <button type="button" class="calc-btn" onclick="calculate()">Calculate Attendance</button>
@@ -266,7 +337,11 @@
         <div class="circle-text" id="circleValue">0%</div>
       </div>
 
+      <!-- Primary Standard (75%) Output Section -->
       <div id="statusDetails"></div>
+
+      <!-- Custom Target Comparison Section (Displays when target != 75%) -->
+      <div id="customTargetOutput" style="display: none;" class="custom-target-box"></div>
 
       <div class="share-container">
         <button type="button" class="share-btn whatsapp-btn" onclick="shareWhatsApp()">Share WhatsApp</button>
@@ -278,6 +353,7 @@
   </div>
 
   <script>
+    var selectedTarget = 75;
     var shareMessage = "";
     var quotes = [
       "“80% of success is showing up.” – Woody Allen",
@@ -302,6 +378,28 @@
       if (btn) btn.innerText = '☀️';
     }
 
+    function clearPillActives() {
+      var pills = document.querySelectorAll('.target-pill');
+      pills.forEach(function(pill) {
+        pill.classList.remove('active');
+      });
+    }
+
+    function setTarget(val, elem) {
+      selectedTarget = val;
+      clearPillActives();
+      elem.classList.add('active');
+      document.getElementById('customTargetDiv').style.display = 'none';
+    }
+
+    function showCustomTarget(elem) {
+      clearPillActives();
+      elem.classList.add('active');
+      var div = document.getElementById('customTargetDiv');
+      div.style.display = 'block';
+      document.getElementById('customTargetVal').focus();
+    }
+
     function calculate() {
       var total = parseInt(document.getElementById('totalDays').value) || 0;
       var present = parseInt(document.getElementById('presentDays').value) || 0;
@@ -316,6 +414,18 @@
         return;
       }
 
+      // Check if custom target input is active
+      var customDiv = document.getElementById('customTargetDiv');
+      var target = selectedTarget;
+      if (customDiv.style.display === 'block') {
+        var customVal = parseFloat(document.getElementById('customTargetVal').value);
+        if (!customVal || customVal <= 0 || customVal > 100) {
+          alert("Please enter a valid target percentage between 1 and 100!");
+          return;
+        }
+        target = customVal;
+      }
+
       var absent = total - present;
       var percent = (present / total) * 100;
       var formatted = percent.toFixed(1);
@@ -324,40 +434,64 @@
       var circle = document.getElementById('progressCircle');
       var circleVal = document.getElementById('circleValue');
       var statusDetails = document.getElementById('statusDetails');
+      var customOutput = document.getElementById('customTargetOutput');
       var quoteElement = document.getElementById('quoteText');
 
       output.style.display = "block";
       circleVal.innerText = formatted + "%";
 
+      // Circular animation
       var circumference = 283;
       var capped = percent > 100 ? 100 : percent;
       var offset = circumference - (capped / 100) * circumference;
       circle.style.strokeDashoffset = offset;
 
+      // 1. PRIMARY EVALUATION (CBSE 75% STANDARD)
       if (percent >= 75) {
         circle.style.stroke = "#10b981";
         output.className = "result good";
-        var missable = Math.floor((present / 0.75) - total);
+        var missable75 = Math.floor((present / 0.75) - total);
 
-        var note = missable > 0 
-          ? "🎉 You can safely miss <b>" + missable + "</b> upcoming class(es)!" 
-          : "⚠️ On the edge! You cannot miss the next class.";
+        var note75 = missable75 > 0 
+          ? "🎉 You can safely miss <b>" + missable75 + "</b> class(es) to stay above 75%." 
+          : "⚠️ Right on the line! Missing the next class drops you below 75%.";
 
-        shareMessage = "My attendance is currently at " + formatted + "% (" + present + "/" + total + ")! Can miss " + missable + " lectures safely. 🚀";
+        shareMessage = "My attendance is currently at " + formatted + "% (" + present + "/" + total + ")! Can miss " + missable75 + " lectures safely for 75%. 🚀";
 
-        statusDetails.innerHTML = '<h3 style="color:#10b981; margin:4px 0;">Safe Zone!</h3>' +
+        statusDetails.innerHTML = '<h3 style="color:#10b981; margin:4px 0;">Official 75% Criteria: Safe Zone!</h3>' +
           '<p>Days Present: <b>' + present + '</b> | Days Absent: <b>' + absent + '</b></p>' +
-          '<p>' + note + '</p>';
+          '<p>' + note75 + '</p>';
       } else {
         circle.style.stroke = "#ef4444";
         output.className = "result warn";
-        var needed = Math.ceil(3 * total - 4 * present);
+        var needed75 = Math.ceil(3 * total - 4 * present);
 
-        shareMessage = "My attendance is currently at " + formatted + "% (" + present + "/" + total + "). Need to attend " + needed + " class(es) in a row to reach 75%! 📚";
+        shareMessage = "My attendance is currently at " + formatted + "% (" + present + "/" + total + "). Need to attend " + needed75 + " class(es) in a row to reach 75%! 📚";
 
-        statusDetails.innerHTML = '<h3 style="color:#ef4444; margin:4px 0;">Shortage Warning!</h3>' +
+        statusDetails.innerHTML = '<h3 style="color:#ef4444; margin:4px 0;">Official 75% Criteria: Shortage!</h3>' +
           '<p>Days Present: <b>' + present + '</b> | Days Absent: <b>' + absent + '</b></p>' +
-          '<p>📌 You must attend the next <b>' + needed + '</b> classes continuously to reach 75%.</p>';
+          '<p>📌 You must attend the next <b>' + needed75 + '</b> class(es) continuously to reach 75%.</p>';
+      }
+
+      // 2. CUSTOM TARGET CALCULATION (If target selected is not 75%)
+      if (target !== 75) {
+        customOutput.style.display = "block";
+        var targetFraction = target / 100;
+
+        if (percent >= target) {
+          var customBunks = Math.floor((present / targetFraction) - total);
+          customOutput.innerHTML = '🎯 <b>Custom Target (' + target + '%): Met!</b><br>' +
+            (customBunks > 0 
+              ? 'You can safely miss <b>' + customBunks + '</b> class(es) while staying above ' + target + '%.' 
+              : 'You are right at your target boundary.');
+        } else {
+          // (Present + x) / (Total + x) >= T => x >= (T*Total - Present) / (1 - T)
+          var neededCustom = Math.ceil(((targetFraction * total) - present) / (1 - targetFraction));
+          customOutput.innerHTML = '🎯 <b>Custom Target (' + target + '%): Shortage!</b><br>' +
+            'Attend the next <b>' + neededCustom + '</b> class(es) continuously to reach ' + target + '%.';
+        }
+      } else {
+        customOutput.style.display = "none";
       }
 
       var randomIndex = Math.floor(Math.random() * quotes.length);
