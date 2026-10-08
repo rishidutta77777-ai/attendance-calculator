@@ -15,8 +15,8 @@
       --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
       --quote-bg: #f8fafc;
       --quote-border: #e2e8f0;
-      --tab-bg: #e5e7eb;
-      --tab-active: #ffffff;
+      --badge-bg: #eff6ff;
+      --badge-text: #1d4ed8;
     }
 
     body.dark {
@@ -29,8 +29,8 @@
       --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
       --quote-bg: #111827;
       --quote-border: #1e293b;
-      --tab-bg: #0f172a;
-      --tab-active: #334155;
+      --badge-bg: #1e3a8a;
+      --badge-text: #93c5fd;
     }
 
     * {
@@ -63,7 +63,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     h2 {
@@ -85,36 +85,18 @@
       cursor: pointer;
     }
 
-    /* Tab switcher */
-    .tab-switcher {
-      display: flex;
-      background: var(--tab-bg);
-      border-radius: 12px;
-      padding: 4px;
-      margin-bottom: 18px;
-      gap: 4px;
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 8px 6px;
+    .tip-box {
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      padding: 10px 12px;
+      border-radius: 10px;
       font-size: 12px;
-      font-weight: 600;
-      border: none;
-      background: transparent;
-      color: var(--subtext);
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .tab-btn.active {
-      background: var(--tab-active);
-      color: var(--text);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      line-height: 1.4;
+      margin-bottom: 18px;
     }
 
     .input-group {
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     label {
@@ -259,49 +241,21 @@
       <button type="button" class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
     </div>
 
-    <!-- Mode Selector Tabs -->
-    <div class="tab-switcher">
-      <button type="button" id="tabRegular" class="tab-btn active" onclick="switchMode('regular')">Regular Mode</button>
-      <button type="button" id="tabLate" class="tab-btn" onclick="switchMode('late')">Late Admission (Dates)</button>
+    <div class="tip-box">
+      💡 <b>Tip:</b> If you joined late, simply enter the working days held <i>since your admission</i>. Prior days are automatically excluded.
     </div>
 
-    <!-- Regular Form (Original Method) -->
-    <div id="regularForm">
-      <div class="input-group">
-        <label>Days Present</label>
-        <input type="number" id="regPresent" placeholder="e.g. 76" min="0">
-      </div>
-      <div class="input-group">
-        <label>Days Absent</label>
-        <input type="number" id="regAbsent" placeholder="e.g. 28" min="0">
-      </div>
-      <div class="input-group">
-        <label>Official Holidays (Informational)</label>
-        <input type="number" id="regHolidays" placeholder="e.g. 27" min="0">
-      </div>
+    <div class="input-group">
+      <label>Total Working Days Held (Classes)</label>
+      <input type="number" id="totalDays" placeholder="e.g. 100" min="1">
     </div>
 
-    <!-- Late Admission Form (Calendar-based) -->
-    <div id="lateForm" style="display: none;">
-      <div class="input-group">
-        <label>Date of Admission / Joining</label>
-        <input type="date" id="joinDate">
-      </div>
-      <div class="input-group">
-        <label>Calculation Up To Date</label>
-        <input type="date" id="tillDate">
-      </div>
-      <div class="input-group">
-        <label>Holidays Since Admission (Excluding Sundays)</label>
-        <input type="number" id="lateHolidays" placeholder="e.g. 5" min="0">
-      </div>
-      <div class="input-group">
-        <label>Days You Attended (Present)</label>
-        <input type="number" id="latePresent" placeholder="e.g. 35" min="0">
-      </div>
+    <div class="input-group">
+      <label>Days / Classes Present</label>
+      <input type="number" id="presentDays" placeholder="e.g. 73" min="0">
     </div>
 
-    <button type="button" class="calc-btn" onclick="calculate()">Calculate</button>
+    <button type="button" class="calc-btn" onclick="calculate()">Calculate Attendance</button>
 
     <div id="output" class="result">
       <div class="circle-container">
@@ -324,7 +278,6 @@
   </div>
 
   <script>
-    var currentMode = "regular";
     var shareMessage = "";
     var quotes = [
       "“80% of success is showing up.” – Woody Allen",
@@ -335,34 +288,6 @@
       "“Push yourself, because no one else is going to do it for you.”",
       "“Your future self will thank you for waking up today.”"
     ];
-
-    // Set today as the default for the "Calculation Up To Date"
-    var todayStr = new Date().toISOString().split('T')[0];
-    var tillDateInput = document.getElementById('tillDate');
-    if (tillDateInput) tillDateInput.value = todayStr;
-
-    function switchMode(mode) {
-      currentMode = mode;
-      var tabReg = document.getElementById('tabRegular');
-      var tabLate = document.getElementById('tabLate');
-      var formReg = document.getElementById('regularForm');
-      var formLate = document.getElementById('lateForm');
-      var output = document.getElementById('output');
-
-      output.style.display = "none";
-
-      if (mode === 'regular') {
-        tabReg.className = "tab-btn active";
-        tabLate.className = "tab-btn";
-        formReg.style.display = "block";
-        formLate.style.display = "none";
-      } else {
-        tabReg.className = "tab-btn";
-        tabLate.className = "tab-btn active";
-        formReg.style.display = "none";
-        formLate.style.display = "block";
-      }
-    }
 
     function toggleTheme() {
       document.body.classList.toggle('dark');
@@ -377,68 +302,24 @@
       if (btn) btn.innerText = '☀️';
     }
 
-    // Helper to count non-Sunday days between two dates
-    function getWorkingDaysBetween(startDate, endDate) {
-      var count = 0;
-      var cur = new Date(startDate);
-      var end = new Date(endDate);
-      while (cur <= end) {
-        if (cur.getDay() !== 0) { // Exclude Sundays
-          count++;
-        }
-        cur.setDate(cur.getDate() + 1);
-      }
-      return count;
-    }
-
     function calculate() {
-      var present = 0;
-      var total = 0;
+      var total = parseInt(document.getElementById('totalDays').value) || 0;
+      var present = parseInt(document.getElementById('presentDays').value) || 0;
 
-      if (currentMode === "regular") {
-        present = parseInt(document.getElementById('regPresent').value) || 0;
-        var absent = parseInt(document.getElementById('regAbsent').value) || 0;
-        total = present + absent;
-
-        if (total === 0) {
-          alert("Please enter days present or absent!");
-          return;
-        }
-      } else {
-        var joinVal = document.getElementById('joinDate').value;
-        var tillVal = document.getElementById('tillDate').value;
-        var lateHolidays = parseInt(document.getElementById('lateHolidays').value) || 0;
-        present = parseInt(document.getElementById('latePresent').value) || 0;
-
-        if (!joinVal || !tillVal) {
-          alert("Please select both your Admission Date and the calculation date!");
-          return;
-        }
-
-        var start = new Date(joinVal);
-        var finish = new Date(tillVal);
-
-        if (start > finish) {
-          alert("Admission Date cannot be after the Calculation Date!");
-          return;
-        }
-
-        var schoolDaysExcludingSundays = getWorkingDaysBetween(start, finish);
-        total = schoolDaysExcludingSundays - lateHolidays;
-
-        if (total <= 0) {
-          alert("Total school days after deducting holidays is 0 or less. Please check holiday count!");
-          return;
-        }
-
-        if (present > total) {
-          alert("Days attended cannot exceed total school working days (" + total + ")!");
-          return;
-        }
+      if (total <= 0) {
+        alert("Please enter a valid number for Total Working Days!");
+        return;
       }
 
+      if (present > total) {
+        alert("Days present cannot be greater than total working days held!");
+        return;
+      }
+
+      var absent = total - present;
       var percent = (present / total) * 100;
       var formatted = percent.toFixed(1);
+
       var output = document.getElementById('output');
       var circle = document.getElementById('progressCircle');
       var circleVal = document.getElementById('circleValue');
@@ -453,10 +334,6 @@
       var offset = circumference - (capped / 100) * circumference;
       circle.style.strokeDashoffset = offset;
 
-      var extraDetails = currentMode === "late" 
-        ? "<p style='font-size:12px; color:var(--subtext);'>Calculated strictly from your Admission Date.</p>" 
-        : "";
-
       if (percent >= 75) {
         circle.style.stroke = "#10b981";
         output.className = "result good";
@@ -466,21 +343,21 @@
           ? "🎉 You can safely miss <b>" + missable + "</b> upcoming class(es)!" 
           : "⚠️ On the edge! You cannot miss the next class.";
 
-        shareMessage = "My attendance is currently at " + formatted + "%! Can miss " + missable + " lectures safely. 🚀";
+        shareMessage = "My attendance is currently at " + formatted + "% (" + present + "/" + total + ")! Can miss " + missable + " lectures safely. 🚀";
 
         statusDetails.innerHTML = '<h3 style="color:#10b981; margin:4px 0;">Safe Zone!</h3>' +
-          '<p>Total Working Days Since Joining: <b>' + total + '</b></p>' +
-          '<p>' + note + '</p>' + extraDetails;
+          '<p>Days Present: <b>' + present + '</b> | Days Absent: <b>' + absent + '</b></p>' +
+          '<p>' + note + '</p>';
       } else {
         circle.style.stroke = "#ef4444";
         output.className = "result warn";
         var needed = Math.ceil(3 * total - 4 * present);
 
-        shareMessage = "My attendance is currently at " + formatted + "%. I need to attend " + needed + " class(es) in a row! 📚";
+        shareMessage = "My attendance is currently at " + formatted + "% (" + present + "/" + total + "). Need to attend " + needed + " class(es) in a row to reach 75%! 📚";
 
         statusDetails.innerHTML = '<h3 style="color:#ef4444; margin:4px 0;">Shortage Warning!</h3>' +
-          '<p>Total Working Days Since Joining: <b>' + total + '</b></p>' +
-          '<p>📌 You must attend the next <b>' + needed + '</b> classes continuously to reach 75%.</p>' + extraDetails;
+          '<p>Days Present: <b>' + present + '</b> | Days Absent: <b>' + absent + '</b></p>' +
+          '<p>📌 You must attend the next <b>' + needed + '</b> classes continuously to reach 75%.</p>';
       }
 
       var randomIndex = Math.floor(Math.random() * quotes.length);
