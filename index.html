@@ -20,6 +20,8 @@
       --badge-text: #1d4ed8;
       --target-btn-bg: #f1f5f9;
       --target-btn-active: #2563eb;
+      --dossier-bg: #0f172a;
+      --dossier-text: #f8fafc;
     }
 
     body.dark {
@@ -37,6 +39,8 @@
       --badge-text: #93c5fd;
       --target-btn-bg: #0f172a;
       --target-btn-active: #3b82f6;
+      --dossier-bg: #090d16;
+      --dossier-text: #f8fafc;
     }
 
     * {
@@ -241,6 +245,83 @@
       color: var(--subtext);
     }
 
+    /* Admit Card Dossier Card */
+    .dossier-card {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--dossier-bg);
+      color: var(--dossier-text);
+      text-align: left;
+      border: 1px solid #334155;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    .dossier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed #334155;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .dossier-tag {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #94a3b8;
+    }
+
+    .dossier-status {
+      font-size: 13px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .status-granted {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid #10b981;
+    }
+
+    .status-detained {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid #ef4444;
+    }
+
+    .dossier-metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .dossier-metric {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .dossier-metric-title {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+
+    .dossier-metric-val {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .flame-container {
+      margin-top: 4px;
+      font-size: 14px;
+    }
+
     /* Target Prompt Section */
     .target-prompt-card {
       margin-top: 16px;
@@ -316,11 +397,13 @@
       💡 <b>Tip:</b> If you joined late, enter the working days held <i>since your admission</i>. Prior days are automatically excluded.
     </div>
 
+    <!-- Enter Key moves from totalDays -> presentDays -->
     <div class="input-group">
       <label>Total Working Days Held (Classes)</label>
       <input type="number" id="totalDays" placeholder="e.g. 100" min="1" onkeydown="handleEnterTotal(event)">
     </div>
 
+    <!-- Enter Key runs calculate() -->
     <div class="input-group">
       <label>Days / Classes Present</label>
       <input type="number" id="presentDays" placeholder="e.g. 73" min="0" onkeydown="handleEnterPresent(event)">
@@ -348,7 +431,33 @@
       <div class="quote-box" id="quoteText"></div>
     </div>
 
-    <!-- 2. ASK TO SET CUSTOM TARGET -->
+    <!-- 2. ADMIT CARD RISK DOSSIER CARD -->
+    <div id="dossierCard" class="dossier-card" style="display: none;">
+      <div class="dossier-header">
+        <span class="dossier-tag">Admit Card Risk Dossier</span>
+        <span id="dossierStatusBadge" class="dossier-status">EVALUATING</span>
+      </div>
+
+      <div class="dossier-metric-grid">
+        <div class="dossier-metric">
+          <div class="dossier-metric-title">Survival Score</div>
+          <div id="dossierGrade" class="dossier-metric-val">--</div>
+        </div>
+        <div class="dossier-metric">
+          <div class="dossier-metric-title">Teacher Heat Level</div>
+          <div id="dossierHeat" class="dossier-metric-val flame-container">🔥</div>
+        </div>
+      </div>
+
+      <div id="dossierSummary" style="font-size: 13px; line-height: 1.4; color: #cbd5e1; margin-bottom: 12px;"></div>
+
+      <div class="share-container" style="margin-top: 8px;">
+        <button type="button" class="share-btn whatsapp-btn" onclick="shareDossierWhatsApp()">Share Dossier</button>
+        <button type="button" class="share-btn copy-btn" onclick="copyDossier()">Copy Dossier</button>
+      </div>
+    </div>
+
+    <!-- 3. ASK TO SET CUSTOM TARGET -->
     <div id="customPromptSection" class="target-prompt-card" style="display: none;">
       <div class="target-prompt-title">🎯 Want to check against a custom target?</div>
       <div class="target-pills">
@@ -364,7 +473,7 @@
       </div>
     </div>
 
-    <!-- 3. DOWN BOX: CUSTOM TARGET RESULT -->
+    <!-- 4. DOWN BOX: CUSTOM TARGET RESULT -->
     <div id="customOutputCard" class="result" style="display: none;">
       <div class="circle-container">
         <svg>
@@ -388,9 +497,50 @@
   <script>
     var shareMessage75 = "";
     var shareMessageCustom = "";
+    var shareMessageDossier = "";
     var currentTotal = 0;
     var currentPresent = 0;
     var currentPercent = 0;
+
+    // Web Audio Synthesizer (Zero External MP3s)
+    var audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, start, duration, type) {
+      try {
+        var ctx = getAudioContext();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime + start);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + duration);
+      } catch (e) {}
+    }
+
+    // Upbeat 8-bit Victory Arpeggio (C5 -> E5 -> G5 -> C6)
+    function playVictoryChime() {
+      playTone(523.25, 0.00, 0.10, 'triangle');
+      playTone(659.25, 0.08, 0.10, 'triangle');
+      playTone(783.99, 0.16, 0.12, 'triangle');
+      playTone(1046.50, 0.24, 0.25, 'square');
+    }
+
+    // Dramatic Double Buzzer
+    function playBuzzerSound() {
+      playTone(130.81, 0.00, 0.18, 'sawtooth');
+      playTone(110.00, 0.22, 0.28, 'sawtooth');
+    }
 
     var quotes = [
       "“80% of success is showing up.” – Woody Allen",
@@ -406,7 +556,7 @@
       "“An hour of attendance today saves weeks of panic before the admit card is issued!”",
       "“The secret of getting ahead is getting started.” – Mark Twain",
       "“Show up even when you don't feel like it. That is what separates the best.”",
-      "“Success isn't always about greatness. It's about consistency. Consistent hard work leads to success.” – Dwayne Johnson",
+      "“Success isn't always about greatness. It's about consistency.” – Dwayne Johnson",
       "“Attendance is the first test you have to pass before writing the actual exam.”",
       "“A 75% target is just a boundary; make consistency your standard.”",
       "“You don't have to be extreme, just consistent.”",
@@ -483,8 +633,12 @@
       var offset = circumference - (capped / 100) * circumference;
       circle.style.strokeDashoffset = offset;
 
-      // Primary CBSE 75% Evaluation
+      // Primary CBSE 75% Evaluation + Audio & Haptics
       if (currentPercent >= 75) {
+        // Sound & Haptic (Victory)
+        playVictoryChime();
+        if (navigator.vibrate) navigator.vibrate(60);
+
         circle.style.stroke = "#10b981";
         output.className = "result good";
         var missable = Math.floor((currentPresent / 0.75) - currentTotal);
@@ -499,6 +653,10 @@
           '<p>Days Present: <b>' + currentPresent + '</b> | Days Absent: <b>' + absent + '</b></p>' +
           '<p>' + note + '</p>';
       } else {
+        // Sound & Haptic (Buzzer & double pulse)
+        playBuzzerSound();
+        if (navigator.vibrate) navigator.vibrate([100, 50, 150]);
+
         circle.style.stroke = "#ef4444";
         output.className = "result warn";
         var needed = Math.ceil(3 * currentTotal - 4 * currentPresent);
@@ -512,10 +670,84 @@
 
       quoteElement.innerText = getRandomQuote();
 
+      // Render Admit Card Risk Dossier
+      renderDossier(currentPercent, currentPresent, currentTotal);
+
       // Show Custom Target prompt
       document.getElementById('customPromptSection').style.display = 'block';
       document.getElementById('customOutputCard').style.display = 'none';
       clearPillActives();
+    }
+
+    function renderDossier(percent, present, total) {
+      var card = document.getElementById('dossierCard');
+      var badge = document.getElementById('dossierStatusBadge');
+      var grade = document.getElementById('dossierGrade');
+      var heat = document.getElementById('dossierHeat');
+      var summary = document.getElementById('dossierSummary');
+
+      card.style.display = "block";
+
+      var statusText = "";
+      var gradeText = "";
+      var heatText = "";
+      var summaryText = "";
+
+      if (percent >= 85) {
+        statusText = "GRANTED 🟢";
+        badge.className = "dossier-status status-granted";
+        gradeText = "S-Tier (Elite)";
+        heatText = "🟢 Chill (Zero Eyes)";
+        summaryText = "Admit card is fully locked in. You are completely off the coordinator's radar.";
+      } else if (percent >= 80) {
+        statusText = "GRANTED 🟢";
+        badge.className = "dossier-status status-granted";
+        gradeText = "A-Tier (Secure)";
+        heatText = "🔥 Mild (Safe Zone)";
+        summaryText = "Solid margin maintained. You can comfortably ride out standard semester emergencies.";
+      } else if (percent >= 75) {
+        statusText = "PROVISIONAL 🟡";
+        badge.className = "dossier-status status-granted";
+        gradeText = "B-Tier (Edge Walker)";
+        heatText = "🔥🔥 Warm (Under Watch)";
+        summaryText = "Admit card approved for now, but a single unexpected absence will drag you down to detention level.";
+      } else if (percent >= 70) {
+        statusText = "DETAINED 🔴";
+        badge.className = "dossier-status status-detained";
+        gradeText = "C-Tier (Danger)";
+        heatText = "🔥🔥🔥🔥 Hot (Coordinator Alert)";
+        summaryText = "Red register flag active! Medical slip or guardian explanation will be required if not recovered.";
+      } else {
+        statusText = "DETAINED 🔴";
+        badge.className = "dossier-status status-detained";
+        gradeText = "F-Tier (Critical)";
+        heatText = "🔥🔥🔥🔥🔥 Boiling (Principal Office)";
+        summaryText = "Immediate intervention needed. Total attendance deficit requires continuous class presence.";
+      }
+
+      badge.innerText = statusText;
+      grade.innerText = gradeText;
+      heat.innerText = heatText;
+      summary.innerText = summaryText;
+
+      shareMessageDossier = "📋 [ADMIT CARD DOSSIER]\n" +
+        "• Clearance: " + statusText + "\n" +
+        "• Attendance: " + percent.toFixed(1) + "% (" + present + "/" + total + ")\n" +
+        "• Grade: " + gradeText + "\n" +
+        "• Teacher Heat: " + heatText + "\n" +
+        "Status: " + summaryText;
+    }
+
+    function shareDossierWhatsApp() {
+      var url = encodeURIComponent(window.location.href);
+      var text = encodeURIComponent(shareMessageDossier + "\nCheck your survival score: ");
+      window.open("https://api.whatsapp.com/send?text=" + text + url, "_blank");
+    }
+
+    function copyDossier() {
+      navigator.clipboard.writeText(shareMessageDossier).then(function() {
+        alert("Dossier copied to clipboard!");
+      });
     }
 
     function clearPillActives() {
