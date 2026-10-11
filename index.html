@@ -20,8 +20,8 @@
       --badge-text: #1d4ed8;
       --target-btn-bg: #f1f5f9;
       --target-btn-active: #2563eb;
-      --dossier-bg: #0f172a;
-      --dossier-text: #f8fafc;
+      --report-bg: #0f172a;
+      --report-text: #f8fafc;
     }
 
     body.dark {
@@ -39,8 +39,8 @@
       --badge-text: #93c5fd;
       --target-btn-bg: #0f172a;
       --target-btn-active: #3b82f6;
-      --dossier-bg: #090d16;
-      --dossier-text: #f8fafc;
+      --report-bg: #090d16;
+      --report-text: #f8fafc;
     }
 
     * {
@@ -245,19 +245,19 @@
       color: var(--subtext);
     }
 
-    /* Admit Card Dossier Card */
-    .dossier-card {
+    /* Admit Card Risk Report Card */
+    .report-card {
       margin-top: 18px;
       padding: 16px;
       border-radius: 14px;
-      background: var(--dossier-bg);
-      color: var(--dossier-text);
+      background: var(--report-bg);
+      color: var(--report-text);
       text-align: left;
       border: 1px solid #334155;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
     }
 
-    .dossier-header {
+    .report-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -266,7 +266,7 @@
       margin-bottom: 12px;
     }
 
-    .dossier-tag {
+    .report-tag {
       font-size: 11px;
       letter-spacing: 1.5px;
       text-transform: uppercase;
@@ -274,7 +274,7 @@
       color: #94a3b8;
     }
 
-    .dossier-status {
+    .report-status {
       font-size: 13px;
       font-weight: 800;
       padding: 3px 8px;
@@ -293,26 +293,26 @@
       border: 1px solid #ef4444;
     }
 
-    .dossier-metric-grid {
+    .report-metric-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       margin-bottom: 12px;
     }
 
-    .dossier-metric {
+    .report-metric {
       background: rgba(255, 255, 255, 0.05);
       padding: 10px;
       border-radius: 8px;
     }
 
-    .dossier-metric-title {
+    .report-metric-title {
       font-size: 11px;
       color: #94a3b8;
       margin-bottom: 4px;
     }
 
-    .dossier-metric-val {
+    .report-metric-val {
       font-size: 18px;
       font-weight: 800;
     }
@@ -431,29 +431,29 @@
       <div class="quote-box" id="quoteText"></div>
     </div>
 
-    <!-- 2. ADMIT CARD RISK DOSSIER CARD -->
-    <div id="dossierCard" class="dossier-card" style="display: none;">
-      <div class="dossier-header">
-        <span class="dossier-tag">Admit Card Risk Dossier</span>
-        <span id="dossierStatusBadge" class="dossier-status">EVALUATING</span>
+    <!-- 2. ADMIT CARD RISK REPORT CARD -->
+    <div id="reportCard" class="report-card" style="display: none;">
+      <div class="report-header">
+        <span class="report-tag">Admit Card Risk Report</span>
+        <span id="reportStatusBadge" class="report-status">EVALUATING</span>
       </div>
 
-      <div class="dossier-metric-grid">
-        <div class="dossier-metric">
-          <div class="dossier-metric-title">Survival Score</div>
-          <div id="dossierGrade" class="dossier-metric-val">--</div>
+      <div class="report-metric-grid">
+        <div class="report-metric">
+          <div class="report-metric-title">Survival Score</div>
+          <div id="reportGrade" class="report-metric-val">--</div>
         </div>
-        <div class="dossier-metric">
-          <div class="dossier-metric-title">Teacher Heat Level</div>
-          <div id="dossierHeat" class="dossier-metric-val flame-container">🔥</div>
+        <div class="report-metric">
+          <div class="report-metric-title">Teacher Heat Level</div>
+          <div id="reportHeat" class="report-metric-val flame-container">🔥</div>
         </div>
       </div>
 
-      <div id="dossierSummary" style="font-size: 13px; line-height: 1.4; color: #cbd5e1; margin-bottom: 12px;"></div>
+      <div id="reportSummary" style="font-size: 13px; line-height: 1.4; color: #cbd5e1; margin-bottom: 12px;"></div>
 
       <div class="share-container" style="margin-top: 8px;">
-        <button type="button" class="share-btn whatsapp-btn" onclick="shareDossierWhatsApp()">Share Dossier</button>
-        <button type="button" class="share-btn copy-btn" onclick="copyDossier()">Copy Dossier</button>
+        <button type="button" class="share-btn whatsapp-btn" onclick="shareReportWhatsApp()">Share Report</button>
+        <button type="button" class="share-btn copy-btn" onclick="copyReport()">Copy Report</button>
       </div>
     </div>
 
@@ -497,7 +497,7 @@
   <script>
     var shareMessage75 = "";
     var shareMessageCustom = "";
-    var shareMessageDossier = "";
+    var shareMessageReport = "";
     var currentTotal = 0;
     var currentPresent = 0;
     var currentPercent = 0;
@@ -528,7 +528,6 @@
       } catch (e) {}
     }
 
-    // Upbeat 8-bit Victory Arpeggio (C5 -> E5 -> G5 -> C6)
     function playVictoryChime() {
       playTone(523.25, 0.00, 0.10, 'triangle');
       playTone(659.25, 0.08, 0.10, 'triangle');
@@ -536,7 +535,6 @@
       playTone(1046.50, 0.24, 0.25, 'square');
     }
 
-    // Dramatic Double Buzzer
     function playBuzzerSound() {
       playTone(130.81, 0.00, 0.18, 'sawtooth');
       playTone(110.00, 0.22, 0.28, 'sawtooth');
@@ -635,7 +633,6 @@
 
       // Primary CBSE 75% Evaluation + Audio & Haptics
       if (currentPercent >= 75) {
-        // Sound & Haptic (Victory)
         playVictoryChime();
         if (navigator.vibrate) navigator.vibrate(60);
 
@@ -653,7 +650,6 @@
           '<p>Days Present: <b>' + currentPresent + '</b> | Days Absent: <b>' + absent + '</b></p>' +
           '<p>' + note + '</p>';
       } else {
-        // Sound & Haptic (Buzzer & double pulse)
         playBuzzerSound();
         if (navigator.vibrate) navigator.vibrate([100, 50, 150]);
 
@@ -670,8 +666,8 @@
 
       quoteElement.innerText = getRandomQuote();
 
-      // Render Admit Card Risk Dossier
-      renderDossier(currentPercent, currentPresent, currentTotal);
+      // Render Admit Card Risk Report
+      renderReport(currentPercent, currentPresent, currentTotal);
 
       // Show Custom Target prompt
       document.getElementById('customPromptSection').style.display = 'block';
@@ -679,12 +675,12 @@
       clearPillActives();
     }
 
-    function renderDossier(percent, present, total) {
-      var card = document.getElementById('dossierCard');
-      var badge = document.getElementById('dossierStatusBadge');
-      var grade = document.getElementById('dossierGrade');
-      var heat = document.getElementById('dossierHeat');
-      var summary = document.getElementById('dossierSummary');
+    function renderReport(percent, present, total) {
+      var card = document.getElementById('reportCard');
+      var badge = document.getElementById('reportStatusBadge');
+      var grade = document.getElementById('reportGrade');
+      var heat = document.getElementById('reportHeat');
+      var summary = document.getElementById('reportSummary');
 
       card.style.display = "block";
 
@@ -695,31 +691,31 @@
 
       if (percent >= 85) {
         statusText = "GRANTED 🟢";
-        badge.className = "dossier-status status-granted";
+        badge.className = "report-status status-granted";
         gradeText = "S-Tier (Elite)";
         heatText = "🟢 Chill (Zero Eyes)";
         summaryText = "Admit card is fully locked in. You are completely off the coordinator's radar.";
       } else if (percent >= 80) {
         statusText = "GRANTED 🟢";
-        badge.className = "dossier-status status-granted";
+        badge.className = "report-status status-granted";
         gradeText = "A-Tier (Secure)";
         heatText = "🔥 Mild (Safe Zone)";
         summaryText = "Solid margin maintained. You can comfortably ride out standard semester emergencies.";
       } else if (percent >= 75) {
         statusText = "PROVISIONAL 🟡";
-        badge.className = "dossier-status status-granted";
+        badge.className = "report-status status-granted";
         gradeText = "B-Tier (Edge Walker)";
         heatText = "🔥🔥 Warm (Under Watch)";
         summaryText = "Admit card approved for now, but a single unexpected absence will drag you down to detention level.";
       } else if (percent >= 70) {
         statusText = "DETAINED 🔴";
-        badge.className = "dossier-status status-detained";
+        badge.className = "report-status status-detained";
         gradeText = "C-Tier (Danger)";
         heatText = "🔥🔥🔥🔥 Hot (Coordinator Alert)";
         summaryText = "Red register flag active! Medical slip or guardian explanation will be required if not recovered.";
       } else {
         statusText = "DETAINED 🔴";
-        badge.className = "dossier-status status-detained";
+        badge.className = "report-status status-detained";
         gradeText = "F-Tier (Critical)";
         heatText = "🔥🔥🔥🔥🔥 Boiling (Principal Office)";
         summaryText = "Immediate intervention needed. Total attendance deficit requires continuous class presence.";
@@ -730,7 +726,7 @@
       heat.innerText = heatText;
       summary.innerText = summaryText;
 
-      shareMessageDossier = "📋 [ADMIT CARD DOSSIER]\n" +
+      shareMessageReport = "📋 [ADMIT CARD RISK REPORT]\n" +
         "• Clearance: " + statusText + "\n" +
         "• Attendance: " + percent.toFixed(1) + "% (" + present + "/" + total + ")\n" +
         "• Grade: " + gradeText + "\n" +
@@ -738,15 +734,15 @@
         "Status: " + summaryText;
     }
 
-    function shareDossierWhatsApp() {
+    function shareReportWhatsApp() {
       var url = encodeURIComponent(window.location.href);
-      var text = encodeURIComponent(shareMessageDossier + "\nCheck your survival score: ");
+      var text = encodeURIComponent(shareMessageReport + "\nCheck your survival score: ");
       window.open("https://api.whatsapp.com/send?text=" + text + url, "_blank");
     }
 
-    function copyDossier() {
-      navigator.clipboard.writeText(shareMessageDossier).then(function() {
-        alert("Dossier copied to clipboard!");
+    function copyReport() {
+      navigator.clipboard.writeText(shareMessageReport).then(function() {
+        alert("Report copied to clipboard!");
       });
     }
 
