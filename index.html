@@ -4,6 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Attendance Calculator</title>
+
+  <!-- PWA Settings -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="icon-512.png" />
+
   <style>
     :root {
       --bg: #f3f4f6;
@@ -245,7 +253,6 @@
       color: var(--subtext);
     }
 
-    /* Admit Card Risk Report Card */
     .report-card {
       margin-top: 18px;
       padding: 16px;
@@ -322,7 +329,6 @@
       font-size: 14px;
     }
 
-    /* Target Prompt Section */
     .target-prompt-card {
       margin-top: 16px;
       padding: 14px;
@@ -397,13 +403,11 @@
       💡 <b>Tip:</b> If you joined late, enter the working days held <i>since your admission</i>. Prior days are automatically excluded.
     </div>
 
-    <!-- Enter Key moves from totalDays -> presentDays -->
     <div class="input-group">
       <label>Total Working Days Held (Classes)</label>
       <input type="number" id="totalDays" placeholder="e.g. 100" min="1" onkeydown="handleEnterTotal(event)">
     </div>
 
-    <!-- Enter Key runs calculate() -->
     <div class="input-group">
       <label>Days / Classes Present</label>
       <input type="number" id="presentDays" placeholder="e.g. 73" min="0" onkeydown="handleEnterPresent(event)">
@@ -495,6 +499,17 @@
   </div>
 
   <script>
+    // Register PWA Service Worker for Offline Mode
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js').then(function(reg) {
+          console.log('PWA ServiceWorker registered successfully:', reg.scope);
+        }).catch(function(err) {
+          console.log('PWA ServiceWorker registration failed:', err);
+        });
+      });
+    }
+
     var shareMessage75 = "";
     var shareMessageCustom = "";
     var shareMessageReport = "";
@@ -502,7 +517,6 @@
     var currentPresent = 0;
     var currentPercent = 0;
 
-    // Web Audio Synthesizer (Zero External MP3s)
     var audioCtx = null;
 
     function getAudioContext() {
@@ -631,7 +645,6 @@
       var offset = circumference - (capped / 100) * circumference;
       circle.style.strokeDashoffset = offset;
 
-      // Primary CBSE 75% Evaluation + Audio & Haptics
       if (currentPercent >= 75) {
         playVictoryChime();
         if (navigator.vibrate) navigator.vibrate(60);
@@ -665,11 +678,8 @@
       }
 
       quoteElement.innerText = getRandomQuote();
-
-      // Render Admit Card Risk Report
       renderReport(currentPercent, currentPresent, currentTotal);
 
-      // Show Custom Target prompt
       document.getElementById('customPromptSection').style.display = 'block';
       document.getElementById('customOutputCard').style.display = 'none';
       clearPillActives();
